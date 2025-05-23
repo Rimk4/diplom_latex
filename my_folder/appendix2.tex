@@ -7,7 +7,7 @@
 
 \begin{algorithm}
 \SetAlgoLined
-\KwData{Сеть $G=(V,E)$, узел-источник $s$, узел-назначения $d$}
+\KwData{Сеть $G=(V,E)$, абонент-источник $s$, абонент-назначения $d$}
 \KwResult{Оптимальный маршрут $path$}
 \BlankLine
 Инициализировать таблицу маршрутов $RT \gets \emptyset$\;
@@ -18,7 +18,7 @@
     Добавить запись в $RT$: $(n_i, q_i, \text{HopCount}=1)$\;
 }
 \While{$RT$ не содержит маршрут к $d$}{
-    Выбрать промежуточный узел $v$ с максимальной $q_i$\;
+    Выбрать промежуточный абонент $v$ с максимальной $q_i$\;
     Обновить $RT$ через $v$:\;
     $RT \gets RT \cup \text{DiscoverRoutes}(v, d)$\;
 }
@@ -31,13 +31,13 @@ $path \gets \text{маршрут } p \in RT \text{ с минимальным } \
 
 \begin{algorithm}
 \SetAlgoLined
-\KwData{Текущие координаты узлов $\mathbf{x}_t$, скорости $\mathbf{v}_t$}
+\KwData{Текущие координаты абонентов $\mathbf{x}_t$, скорости $\mathbf{v}_t$}
 \KwResult{Прогнозируемые координаты $\mathbf{x}_{t+\Delta t}$}
 \BlankLine
 Инициализировать матрицу состояния:\;
 $\mathbf{F} \gets \begin{bmatrix}1 & \Delta t \\ 0 & 1\end{bmatrix}$\;
 $\mathbf{Q} \gets \begin{bmatrix}0.1 & 0 \\ 0 & 0.1\end{bmatrix}$\;
-\For{каждого узла $i$}{
+\For{каждого абонента $i$}{
     Предсказание состояния:\;
     $\mathbf{x}_i^{pred} \gets \mathbf{F} \mathbf{x}_i$\;
     $\mathbf{P}_i^{pred} \gets \mathbf{F} \mathbf{P}_i \mathbf{F}^T + \mathbf{Q}$\;
@@ -47,7 +47,7 @@ $\mathbf{Q} \gets \begin{bmatrix}0.1 & 0 \\ 0 & 0.1\end{bmatrix}$\;
     $\mathbf{x}_i \gets \mathbf{x}_i^{pred} + \mathbf{K}(\mathbf{z}_i - \mathbf{x}_i^{pred})$\;
     $\mathbf{P}_i \gets (\mathbf{I} - \mathbf{K})\mathbf{P}_i^{pred}$\;
 }
-\caption{Прогнозирование позиций узлов}\label{alg:position-prediction}
+\caption{Прогнозирование позиций абонентов}\label{alg:position-prediction}
 \end{algorithm}
 
 \section{Алгоритм управления энергией}
@@ -82,6 +82,6 @@ $\mathbf{Q} \gets \begin{bmatrix}0.1 & 0 \\ 0 & 0.1\end{bmatrix}$\;
 \begin{itemize}
 \item 85 - текущий уровень сигнала (RSSI)
 \item 100 - максимальный RSSI
-\item 120 - остаточная энергия узла (мДж)
-\item 150 - начальная энергия узла (мДж)
+\item 120 - остаточная энергия абонента (мДж)
+\item 150 - начальная энергия абонента (мДж)
 \end{itemize}
