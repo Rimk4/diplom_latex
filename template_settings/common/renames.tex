@@ -139,7 +139,34 @@ P2P-сети, %
 }
 %%
 %%
-\newcommand{\abstractEn}{In the given work the essence of the approach to creation of a dynamic information portal on the basis of use of open technologies Apache, MySQL and PHP is stated. The general concepts and classification of IT-systems of such class are given. The analysis of systems-prototypes is lead. The technology of creation of the specified class of information systems is investigated. Concrete program realization of a dynamic information portal on an example of a portal of the chosen subjects is developed...} % ВВЕДИТЕ текст аннотации по-английски
+\newcommand{\abstractEn}{%
+This research investigates an algorithm for self-organizing low-speed data transmission systems in mobile peer-to-peer (P2P) networks with a radio channel range of up to 10 km and data rates of 32 bps to 37 kbps.
+
+\textbf{Research objectives} include the development of a robust algorithm that ensures:
+\begin{enumerate}
+	\item Dynamic node discovery at movement speeds up to 60 km/h
+	\item Data loss minimization through adaptive retransmission
+	\item Time synchronization with error <1 ms
+\end{enumerate}
+
+\textbf{Methodology} comprises:
+\begin{itemize}
+	\item Node movement modeling (coordinates $x(t)$, $y(t)$ and communication radius $R \geq 10$ km)
+	\item Frame format optimization (16-bit header + 128-bit payload + CRC)
+	\item Hybrid routing with reachability zone prediction
+\end{itemize}
+
+\textbf{Results}:
+\begin{itemize}
+	\item For a 5-node network: achieved 1.5 sec transmission delay with 0\% packet loss
+	\item For 15 nodes at 60 km/h: synchronization time of 131 sec (frame loss rate 22\%)
+	\item Maximum network capacity: 30-50 nodes at 37 kbps, 3-5 nodes at 32 bps
+\end{itemize}
+
+\textbf{Applications}: military networks, IoT in remote areas, autonomous transportation systems.
+
+\textbf{Conclusions}: The proposed algorithm ensures network survivability under low-speed transmission and node mobility conditions, but requires clustering for scalability.
+}
 
 
 %%% РАЗДЕЛ ДЛЯ ОФОРМЛЕНИЯ ПРАКТИКИ
