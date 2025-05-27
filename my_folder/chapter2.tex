@@ -9,8 +9,6 @@
 
 Раздел~\ref{ch2:sec2} посвящен разработке алгоритма децентрализованной маршрутизации, решающего проблемы нестабильности соединений и потерь данных, описанные в разделе~\ref{ch1:sec1:subsec2}. Предложенный алгоритм сочетает преимущества табличных и реактивных подходов с учетом энергетических ограничений абонентов сети.
 
-В разделе~\ref{ch2:sec3} представлены методы прогнозирования позиций абонентов, необходимые для компенсации эффектов динамического изменения топологии сети. Разработанный подход основан на модифицированном фильтре Калмана и демонстрирует точность прогнозирования до 1.5 метров при интервалах обновления 5 секунд.
-
 \section{Математическая модель сети} \label{ch2:sec1} %название по-русски
 
 Математическая модель самоорганизующейся сети включает следующие компоненты:
@@ -33,8 +31,7 @@ G(t) = (V(t), E(t), P(t), Q(t))
 \begin{equation}
 \begin{cases}
 \frac{dx_i}{dt} = v_i \cos \theta_i \\
-\frac{dy_i}{dt} = v_i \sin \theta_i \\
-\frac{dq_{ij}}{dt} = -\alpha q_{ij} + \beta \frac{P_{tx}}{d_{ij}^\gamma}
+\frac{dy_i}{dt} = v_i \sin \theta_i
 \end{cases}
 \end{equation}
 
@@ -57,29 +54,35 @@ y_i(t+\Delta t) = y_i(t) + v_i(t)\sin\theta_i(t)\Delta t
 
 \subsection{Критерии качества передачи данных} \label{ch2:sec1:sub2}
 
-Для оценки качества передачи введены метрики:
+Для оценки качества передачи данных используются следующие метрики:
+
 \begin{enumerate}
-\item Вероятность успешной доставки:
-\begin{equation}
-P_{deliv} = e^{-\alpha d_{ij}/R}
-\end{equation}
+    \item Вероятность успешной передачи фрейма, рассчитываемая с учётом расстояния, размера фрейма и битрейта:
+    \begin{equation}
+    P_{deliv} = e^{-\lambda \frac{d}{R}} \times \left(1 - 0.1 \frac{L}{1024}\right) \times \left(1 - 0.05 \frac{R_b}{10000}\right)
+    \end{equation}
+    где
+    \begin{itemize}
+        \item $d$ — расстояние между передатчиком и приёмником,
+        \item $R$ — нормировочный параметр (например, единица),
+        \item $\lambda$ — коэффициент затухания (decay rate),
+        \item $L$ — размер полезной нагрузки фрейма (в байтах),
+        \item $R_b$ — битрейт передачи (в битах в секунду).
+    \end{itemize}
 
-\item Энергетическая эффективность:
-\begin{equation}
-\eta_{energy} = \frac{P_{tx}}{E_{bit}\cdot BER}
-\end{equation}
+    \item Задержка передачи фрейма, включающая время обработки и время передачи:
+    \begin{equation}
+    D_{total} = \sum_{k=1}^N \left( D_{proc}^k + \frac{L}{R_{ij}^k} \right)
+    \end{equation}
+    где $D_{proc}^k$ — время обработки на $k$-ом абоненте, $L$ — размер фрейма, $R_{ij}^k$ — скорость передачи по каналу между абонентами $i$ и $j$ на $k$-ом этапе.
 
-\item Задержка передачи:
-\begin{equation}
-D_{total} = \sum_{k=1}^N \left(D_{proc}^k + \frac{L}{R_{ij}^k}\right)
-\end{equation}
 \end{enumerate}
 
-Комплексный критерий качества:
+Комплексный критерий качества передачи данных определяется как взвешенная сумма метрик:
 \begin{equation}
-Q = \alpha_1 P_{deliv} + \alpha_2 \eta_{energy} - \alpha_3 D_{total}
+Q = \alpha_1 P_{deliv} - \alpha_2 D_{total}
 \end{equation}
-где $\alpha_i$ - весовые коэффициенты, $\sum\alpha_i=1$.
+где $\alpha_i$ — весовые коэффициенты, удовлетворяющие условию $\sum_{i=1}^2 \alpha_i = 1$.
 
 	
 \section{Алгоритм децентрализованной маршрутизации} \label{ch2:sec2} %название по-русски
@@ -93,15 +96,12 @@ Q = \alpha_1 P_{deliv} + \alpha_2 \eta_{energy} - \alpha_3 D_{total}
         \item Построение таблицы соседей
     \end{itemize}
     
-    \item \textbf{Вычисление метрик}:
-    \begin{equation}
-    M_{ij} = \alpha \cdot q_{ij} + (1-\alpha) \cdot \frac{E_{res}^j}{E_{init}^j}
-    \end{equation}
+    \item \textbf{Вычисление метрик} $Q_{ij}$
     
     \item \textbf{Обновление маршрутов}:
     \begin{itemize}
         \item Адаптация к изменениям топологии
-        \item Учет энергоресурсов абонентов
+        \item Адаптация к помехам и разорванным соединениям
     \end{itemize}
 \end{enumerate}
 
@@ -117,35 +117,35 @@ T_{update} = T_{base} \cdot (1 + \frac{v_{avg}}{v_{max}})
 \item $T_{update}$ - интервал обновления карты (сек)
 \item $T_{base}$ - базовый интервал (30 сек)
 \item $v_{avg}$ - средняя скорость абонентов (м/с)
-\item $v_{max}$ - максимальная скорость (16.7 м/с для 60 км/ч)
+\item $v_{max}$ - максимальная скорость
 \end{itemize}
 
 Процедура обмена включает три фазы:
 
-1. \textbf{Инициализация}:
-\begin{equation}
-M_i = \langle ID_i, pos_i, E_i, Q_{neighbors} \rangle
-\end{equation}
-где $Q_{neighbors}$ - вектор качества связей с соседями
+\begin{enumerate}[1.]
+    \item \textbf{Инициализация}:
+    \begin{equation}
+    M_i = \langle ID_i, \; pos_i, \; Q_{neighbors} \rangle
+    \end{equation}
+    где:
+    \begin{itemize}
+        \item $ID_i$ — уникальный идентификатор абонента $i$,
+        \item $pos_i$ — позиция (координаты) абонента $i$,
+        \item $Q_{neighbors}$ — вектор, содержащий значения качества связи абонента $i$ с его соседями.
+    \end{itemize}    
 
-2. \textbf{Распространение}:
-\begin{itemize}
-\item Ограниченное флудингом (TTL=3)
-\item Приоритетная обработка критических изменений
-\end{itemize}
+    \item \textbf{Распространение}:
+    \begin{itemize}
+    \item Ограниченное распространением, то есть широковещательные сообщения могут быть пересланными конечное количество раз TTL=3 (\textit{англ.} Time To Live, \textit{далее} — TTL, время жизни) 
+    \item Приоритетная обработка критических изменений
+    \end{itemize}
 
-3. \textbf{Синхронизация}:
-\begin{equation}
-\Delta M = \sum_{k=1}^N w_k(M_k - M_{local})
-\end{equation}
-с весами $w_k = \frac{q_{ik}}{\sum q_{ik}}$
-
-Экспериментальные данные показывают:
-\begin{itemize}
-\item Снижение служебного трафика на 40\% по сравнению с OLSR
-\item Среднее время актуализации карты 12.3 сек
-\item Полнота информации 98.2\% при плотности 15 абонентов/км$^2$
-\end{itemize}
+    \item \textbf{Синхронизация}:
+    \begin{equation}
+    \Delta M = \sum_{k=1}^N w_k(M_k - M_{local})
+    \end{equation}
+    с весами $w_k = \frac{q_{ik}}{\sum q_{ik}}$
+\end{enumerate}
 
 
 \subsection{Адаптивная стратегия повторной передачи} \label{ch2:sec2:sub5}
@@ -160,9 +160,9 @@ N_{retry} = \left\lfloor N_{max} \cdot \left(1 - \frac{q_{curr}}{q_{thresh}}\rig
 где:
 \begin{itemize}
 \item $N_{retry}$ - количество попыток повторной передачи
-\item $N_{max}$ - максимально допустимое число попыток (5)
-\item $q_{curr}$ - текущее качество канала (0..1)
-\item $q_{thresh}$ - пороговое значение качества (0.6)
+\item $N_{max}$ - максимально допустимое число попыток
+\item $q_{curr}$ - текущее качество канала
+\item $q_{thresh}$ - пороговое значение качества
 \end{itemize}
 
 \subsubsection{Динамический интервал между попытками}
@@ -173,17 +173,6 @@ T_{backoff} = T_{base} \cdot \left(1 + \alpha \cdot \frac{RTT_{avg}}{RTT_{min}}\
 где $\alpha$ - коэффициент адаптации (0.2).
 
 \subsubsection{Результаты экспериментальной оценки}
-\begin{table}[h]
-\centering
-\caption{Сравнение стратегий повторной передачи}
-\begin{tabular}{|l|c|c|c|}
-\hline
-Параметр & Фиксированная & Экспоненциальная & Адаптивная \\ \hline
-Эффективность доставки & 78\% & 85\% & 94\% \\ \hline
-Средняя задержка (мс) & 420 & 380 & 310 \\ \hline
-Энергозатраты (мДж) & 12.5 & 10.8 & 8.3 \\ \hline
-\end{tabular}
-\end{table}
 
 Ключевые преимущества:
 \begin{itemize}
@@ -197,29 +186,8 @@ T_{backoff} = T_{base} \cdot \left(1 + \alpha \cdot \frac{RTT_{avg}}{RTT_{min}}\
 \begin{equation}
 P_{retry} = \beta \cdot \frac{priority}{priority_{max}} + (1-\beta)\cdot q_{curr}
 \end{equation}
-\item Оптимальное использование ресурсов:
-\begin{itemize}
-\item Снижение служебного трафика на 35\%
-\item Уменьшение энергопотребления на 28\%
+\item Оптимальное использование ресурсов --- снижение служебного трафика
 \end{itemize}
-\end{itemize}
-
-	
-\section{Методы прогнозирования позиций абонентов} \label{ch2:sec3}
-
-Для прогнозирования позиций абонентов используется расширенный фильтр Калмана:
-
-\begin{equation}
-\begin{cases}
-\hat{x}_k = F_k \hat{x}_{k-1} + B_k u_k \\
-P_k = F_k P_{k-1} F_k^T + Q_k
-\end{cases}
-\end{equation}
-
-Точность прогнозирования составляет 1.5 м при интервале обновления 5 с.
-
-\section{Выводы} \label{ch2:conclusion}
-
 
 
 %% Вспомогательные команды - Additional commands

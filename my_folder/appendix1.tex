@@ -11,8 +11,7 @@
     \item Операционная система: Linux (рекомендуется Ubuntu 20.04+) или Windows 10+
     \item Установленные пакеты:
     \begin{itemize}
-        \item Python 3.8+ (с библиотеками NumPy, SciPy)
-        \item OMNeT++ 6.0+ с модулем INET
+        \item Python 3.8+ (с библиотеками matplotlib, dearpygui, numpy)
         \item Git для управления версиями
     \end{itemize}
 \end{itemize}
@@ -22,19 +21,13 @@
 \begin{enumerate}
     \item Клонировать репозиторий проекта:
     \begin{verbatim}
-    git clone https://github.com/example/ad-hoc-routing.git
+    git clone https://github.com/Rimk4/SONetwork.git
     \end{verbatim}
     
     \item Установить зависимости:
     \begin{verbatim}
-    pip install -r requirements.txt
+    pip3 install -r requirements-dev.txt
     \end{verbatim}
-    
-    \item Импортировать проект в OMNeT++ IDE:
-    \begin{itemize}
-        \item File → Import → Existing Projects into Workspace
-        \item Выбрать папку проекта
-    \end{itemize}
 \end{enumerate}
 
 \section{Конфигурация сети}
@@ -46,10 +39,9 @@
 \begin{tabular}{|l|c|}
 \hline
 Параметр & Значение \\ \hline
-Количество абонентов & 15-50 \\
-Скорость передачи & 32-64 бит/с \\
-Максимальная скорость абонентов & 60 км/ч \\
-Мощность передачи & 10-100 мВт \\ \hline
+Количество абонентов & 8-30 \\
+Скорость передачи & 32 бит/с - 37 кбит/с \\
+Максимальная скорость абонентов & 60 км/ч \\ \hline
 \end{tabular}
 \caption{Параметры конфигурации сети}
 \label{tab:network-config}
@@ -60,42 +52,53 @@
 \subsection{Алгоритм маршрутизации}
 
 \begin{verbatim}
-def find_optimal_route(network_graph, current_node, destination):
-    # Реализация алгоритма выбора маршрута
-    routes = []
-    for neighbor in network_graph.neighbors(current_node):
-        metric = calculate_route_metric(neighbor)
-        routes.append((neighbor, metric))
-    
-    return min(routes, key=lambda x: x[1])
-\end{verbatim}
+def _initiate_route_discovery(self, target_id: int) -> None:
+    """Поиск маршрута (AODV-like)"""
+    rreq = RREQFrame(sender_id=self.node_id, source_id=self.node_id,
+                    target_id=target_id, max_hops=self.max_hops)
+    for neighbor_id in self._get_neighbors():
+        self.network.transmit_frame(rreq, self.node_id, neighbor_id)
+    self.logger.info(f"[ROUT] Поиск маршрута к {target_id}")
 
-\subsection{Модуль энергоменеджмента}
-
-\begin{verbatim}
-def adjust_power_level(distance, remaining_energy):
-    # Адаптивная регулировка мощности
-    base_power = 10  # мВт
-    max_power = 100  # мВт
-    power = base_power + (max_power - base_power) * (distance / max_distance)
-    
-    if remaining_energy < energy_threshold:
-        power *= 0.7  # Снижение мощности при низком заряде
-        
-    return min(power, max_power)
+def _process_rrep(self, frame: Frame) -> None:
+    """Обработка Route Reply"""
+    try:
+        payload = json.loads(frame.payload.decode())
+        if payload['source_id'] == self.node_id:
+            self._update_routing_table(payload['target_id'],
+                                     frame.sender_id,
+                                     frame.hop_count)
+        elif payload['source_id'] in self.routing_table:
+            new_rrep = RREPFrame(sender_id=self.node_id,
+                               source_id=payload['source_id'],
+                               target_id=payload['target_id'],
+                               hop_count=frame.hop_count + 1)
+            self.network.transmit_frame(new_rrep, self.node_id,
+                                      self.routing_table[payload['source_id']].next_hop)
+            self._update_routing_table(payload['target_id'],
+                                     frame.sender_id,
+                                     frame.hop_count)
+    except Exception as e:
+        self.logger.error(f"Ошибка декодирования: {e}")
 \end{verbatim}
 
 \section{Рекомендации по использованию}
 
 \begin{itemize}
     \item Для тестирования использовать сценарии из папки \texttt{simulations/}
-    \item Параметры сети изменять в файле \texttt{config/network.ini}
-    \item Результаты сохраняются в \texttt{results/logs/} в формате CSV
+    \item Параметры сети изменять в файле \verb|out/network_config_<yyyymmdd_hhmmss>.json|
+    \item Логи сохраняются в \verb|out/logs/node_<number>.log| в формате LOG
+    \item Воспользоваться Makefile для управления процессом:
+    \begin{itemize}
+        \item \texttt{make venv} — создание и активация виртуального окружения Python
+        \item \texttt{make install} — установка необходимых зависимостей
+        \item \texttt{make test} — запуск полного набора тестов
+        \item \texttt{make test-single} — запуск отдельного теста
+        \item \texttt{make coverage-term} и \texttt{make coverage-html} — генерация отчётов по покрытию кода тестами
+        \item \texttt{make run} — запуск имитационной модели в консольном режиме
+        \item \texttt{make run-gui} — запуск с графическим интерфейсом
+        \item \texttt{make clean-all}, \texttt{make clean-cache}, \texttt{make clean-out} — очистка артефактов сборки, кэша и выходных данных
+        \item \texttt{make docs} — генерация документации
+        \item \texttt{make help} — вывод справки по доступным командам
+    \end{itemize}
 \end{itemize}
-
-% \begin{figure}[h]
-% \centering
-% \includegraphics[width=0.8\textwidth]{network-scheme}
-% \caption{Схема тестовой сети в OMNeT++}
-% \label{fig:network-scheme}
-% \end{figure}
