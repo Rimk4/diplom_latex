@@ -59,15 +59,15 @@ y_i(t+\Delta t) = y_i(t) + v_i(t)\sin\theta_i(t)\Delta t
 \begin{enumerate}
     \item Вероятность успешной передачи фрейма, рассчитываемая с учётом расстояния, размера фрейма и битрейта:
     \begin{equation}
-    P_{deliv} = e^{-\lambda \frac{d}{R}} \times \left(1 - 0.1 \frac{L}{1024}\right) \times \left(1 - 0.05 \frac{R_b}{10000}\right)
+    P_{deliv} = e^{-\alpha \frac{d}{R}} \times \left(1 - 0.1 \frac{L}{1024}\right) \times \left(1 - 0.05 \frac{B}{10000}\right)
     \end{equation}
     где
     \begin{itemize}
         \item $d$ — расстояние между передатчиком и приёмником,
-        \item $R$ — нормировочный параметр (например, единица),
-        \item $\lambda$ — коэффициент затухания (decay rate),
+        \item $R$ — максимальная дальность прямой радиовидимости,
+        \item $\alpha$ — коэффициент затухания (\textit{англ.} decay rate),
         \item $L$ — размер полезной нагрузки фрейма (в байтах),
-        \item $R_b$ — битрейт передачи (в битах в секунду).
+        \item $B$ — битрейт передачи (в битах в секунду).
     \end{itemize}
 
     \item Задержка передачи фрейма, включающая время обработки и время передачи:
