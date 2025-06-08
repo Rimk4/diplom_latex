@@ -66,12 +66,23 @@ P_{\text{success}} = e^{-\lambda \frac{d_{ij}}{R}}, \quad \lambda \in [0.1, 0.5]
 Данная модель демонстрирует экспоненциальную зависимость качества соединения от расстояния между абонентами, что актуально и для мобильных сетей с 
 динамически изменяющейся топологией.
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.8\textwidth]{exp.png}
-\caption{Зависимость вероятности успешной передачи $P_{\text{success}}$ от расстояния между абонентами $d_{ij}$ для различных значений коэффициента 
-затухания $\lambda$}
-\label{fig:exp_plot}
+\begin{figure}[ht!]
+    \centering
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[scale=0.3]{my_folder/images/fig1}
+        \caption{Зависимость вероятности успешной передачи $P_{\text{success}}$ от расстояния между абонентами $d_{ij}$ для различных значений коэффициента 
+затухания $\lambda$ (представленна для наглядности в приближении)}
+        \label{fig:exp_plot1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[scale=0.3]{my_folder/images/fig2}
+        \caption{Зависимость в$P_{\text{success}}$ от $d_{ij}$ в правильном масштабе затухания $\lambda$}
+        \label{fig:exp_plot}
+    \end{subfigure}
+    \caption{Демонстрация зависимости вероятности успешной передачи в зависимости от коэффициента затухания и расстояния между абонентами}
 \end{figure}
 
 Как видно из графика на Рис.~\ref{fig:exp_plot}, вероятность успешной передачи данных экспоненциально уменьшается с ростом расстояния между абонентами. 
