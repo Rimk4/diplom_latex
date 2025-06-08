@@ -59,6 +59,7 @@ y_i(t+\Delta t) = y_i(t) + v_i(t)\sin\theta_i(t)\Delta t
 \begin{enumerate}
     \item Вероятность успешной передачи фрейма, рассчитываемая с учётом расстояния, размера фрейма и битрейта:
     \begin{equation}
+    \label{eq:error-model}
     P_{deliv} = e^{-\alpha \frac{d}{R}} \times \left(1 - 0.1 \frac{L}{1024}\right) \times \left(1 - 0.05 \frac{B}{10000}\right)
     \end{equation}
     где

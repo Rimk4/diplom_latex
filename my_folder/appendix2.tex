@@ -3,38 +3,54 @@
 
 \section{Основной алгоритм маршрутизации}
 
-\begin{algorithm} [H]
+\begin{algorithm}[H]
 \SetAlgoLined
-\KwData{Сеть $G=(V,E)$, абонент-источник $s$, абонент-назначения $d$}
-\KwResult{Оптимальный маршрут $path$}
+\KwData{Сеть $G=(V,E)$, где $V$ - множество узлов, $E$ - соединения между ними; источник $s$, назначение $d$}
+\KwResult{Оптимальный маршрут $path$ с учетом качества связи и расстояния}
 \BlankLine
 Инициализировать таблицу маршрутов $RT \gets \emptyset$\;
-Обнаружить соседей $N \gets \text{GetNeighbors}(s)$\;
-\For{каждого $n_i \in N$}{
-    Рассчитать метрику качества связи:\;
-    $q_i \gets \alpha \cdot \text{RSSI}(n_i)$\;
-    Добавить запись в $RT$: $(n_i, q_i, \text{HopCount}=1)$\;
+Обнаружить соседей в радиусе $R$: $N \gets \{n_i \in V \mid \text{distance}(s,n_i) \leq R\}$\;
+\For{каждого соседа $n_i \in N$}{
+    Рассчитать комплексную метрику качества:\;
+    $q_i \gets \alpha \cdot \text{RSSI}(n_i) + \beta \cdot (1 - \frac{\text{distance}(s,n_i)}{R}) + \gamma \cdot \text{SuccessRate}(n_i)$\;
+    Добавить запись в $RT$: $(n_i, q_i, \text{HopCount}=1, \text{Bitrate}=\text{GetBitrate}(n_i))$\;
 }
-\While{$RT$ не содержит маршрут к $d$}{
-    Выбрать промежуточный абонент $v$ с максимальной $q_i$\;
-    Обновить $RT$ через $v$:\;
-    $RT \gets RT \cup \text{DiscoverRoutes}(v, d)$\;
+\While{$RT$ не содержит маршрут к $d$ \textbf{и} не превышено максимальное число итераций}{
+    Выбрать промежуточный узел $v$ с максимальной $q_i$ и минимальным $\text{HopCount}$\;
+    Обновить $RT$ через $v$ с учетом:\;
+    \Indp
+    - Вероятности успешной передачи: $P_{\text{succ}} = e^{-\lambda \cdot \text{distance}/R} \cdot \frac{\text{Bitrate}}{\text{MaxBitrate}}$\;
+    - Времени задержки: $\text{Delay} = \frac{\text{FrameSize}}{\text{Bitrate}} + \frac{\text{distance}}{c}$\;
+    \Indm
+    $RT \gets RT \cup \text{DiscoverRoutes}(v, d, \text{max\_hops}=5)$\;
 }
-Найти маршрут с минимальной метрикой:\;
-$path \gets \text{маршрут } p \in RT \text{ с минимальным } \left(\text{HopCount}(p)\right)$\;
-\caption{Адаптивный алгоритм маршрутизации}\label{alg:adaptive-routing}
+\If{найден маршрут к $d$}{
+    Выбрать оптимальный маршрут по критерию:\;
+    $path \gets \argmin_{p \in RT} \left(\text{HopCount}(p) + w \cdot \text{TotalDelay}(p)\right)$\;
+    \textbf{return} $path$\;
+}
+\Else{
+    \textbf{return} $\emptyset$ (маршрут не найден)\;
+}
+\caption{Усовершенствованный адаптивный алгоритм маршрутизации}\label{alg:enhanced-routing}
 \end{algorithm}
 
-\section{Примеры расчетов}
+\section{Примеры расчетов метрик}
 
-Для иллюстрации работы алгоритмов приведем пример расчета метрики маршрута:
+Для иллюстрации работы алгоритма приведем примеры расчетов:
 
 \begin{equation}
-\text{Metric} = 0.7 \cdot \frac{85}{100} = 0.595
+P_{\text{succ}} = e^{-0.3 \cdot \frac{150}{10000}} = e^{-0.0045} = 0.9955
+\end{equation}
+
+\begin{equation}
+\text{TotalDelay} = \frac{1024 \text{ бит}}{10000 \text{ бит/с}} + \frac{150 \text{ м}}{3 \cdot 10^8 \text{ м/с}} \approx 0.1024 + 0.5 \cdot 10^{-6} \approx 0.1024 \text{ с}
 \end{equation}
 
 где:
 \begin{itemize}
-\item 85 - текущий уровень сигнала (RSSI)
-\item 100 - максимальный RSSI
+\item $\lambda=0.3$ - коэффициент затухания из NetworkSimulator
+\item $R=10$ км - максимальный радиус связи
+\item Bitrate = 10 кбит/с - скорость передачи узла
+\item FrameSize = 128 байт (1024 бита) - типичный размер фрейма
 \end{itemize}
