@@ -24,14 +24,7 @@
     \Indm
     $RT \gets RT \cup \text{DiscoverRoutes}(v, d, \text{max\_hops}=5)$\;
 }
-\If{найден маршрут к $d$}{
-    Выбрать оптимальный маршрут по критерию:\;
-    $path \gets \argmin_{p \in RT} \left(\text{HopCount}(p) + w \cdot \text{TotalDelay}(p)\right)$\;
-    \textbf{return} $path$\;
-}
-\Else{
-    \textbf{return} $\emptyset$ (маршрут не найден)\;
-}
+
 \caption{Усовершенствованный адаптивный алгоритм маршрутизации}\label{alg:enhanced-routing}
 \end{algorithm}
 
