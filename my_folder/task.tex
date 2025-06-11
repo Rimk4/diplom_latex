@@ -12,7 +12,9 @@
 				\vspace{\mfloatsep} % интервал 	
 				\begin{tabularx}{\linewidth}{Xl}
 					&УТВЕРЖДАЮ      \\
-					&\HeadTitle     \\			
+					&Руководитель образовательной про-\\
+					&граммы «Прикладная математика и \\
+					&информатика»     \\			
 					&\underline{\hspace*{0.1\textheight}} \Head     \\
 					&<<\underline{\hspace*{0.05\textheight}}>> \underline{\hspace*{0.1\textheight}} \approveYear г.  \\  
 				\end{tabularx}
@@ -29,7 +31,7 @@
 
 \intervalS\normalfont%
 
-				студенту \uline{\AuthorFullDat{} гр.~\group}
+				студенту \uline{Губину Р.В.{} гр.~\group}
 
 
 \par}\intervalS%
@@ -39,51 +41,49 @@
 	
 	
 \begin{enumerate}[1.]
-	\item Тема работы: {\expandafter \ulined \thesisTitle.}
+	\item Тема работы: {\expandafter \ulined \thesisTitle}
 	%\item Тема работы (на английском языке): \uline{\thesisTitleEn.} % вероятно после 2021 года
-	\item Срок сдачи студентом законченной работы\footnote{Последний день преддипломной практики согласно учебному плану.}: \uline{\thesisDeadline.} 
-	\item Исходные данные по работе\footnote{Текст, который подчёркнут и/или выделен в отдельные элементы нумерационного списка, приведён в качестве примера.}: \uline{статистические данные с сайта \cite{gosstat}, а также из репозитория \cite{uci}; основным источником литературы является монография \cite{Book} и статья \cite{Article}.}%
-	\printbibliographyTask % печать списка источников % КОММЕНТИРУЕМ ЕСЛИ НЕ ИСПОЛЬЗУЕТСЯ
-	% В СЛУЧАЕ, ЕСЛИ НЕ ИСПОЛЬЗУЕТСЯ МОЖНО ТАКЖЕ ЗАЙТИ В setup.tex и закомментировать \vspace{-0.28\curtextsize}
+	\item Срок сдачи студентом законченной работы: \uline{\thesisDeadline.} 
+	\item Исходные данные по работе: \\
+	Система передачи данных с 8 и более абонентами\\
+	Скорость передачи данных между абонентами -- от 32 бит/с до 37 кбит/с\\
+	Инструментальные средства: \\
+	•\hspace{1cm} Язык программирования Python \\
+	Ключевые источники литературы : 
+	\begin{enumerate}[1.]
+	\item Компьютерные сети. Нисходящий подход.  Куроуз Д.Ф., Росс К.В. 2016 
+	\item Stallings, William. Data and Computer Communications. 10th ed., Pearson, 2015. 
+	\item "Python Network Programming Cookbook", R. Kumar, 2017 
+	\item "Fluent Python: Сlеаг, Concise Programming", Luciano Ramalho, 2022.
+	\end{enumerate}
 	\item Содержание работы (перечень подлежащих разработке вопросов):
-	\begin{enumerate}[label=\theenumi\arabic*.]
-		\item Обзор литературы по теме ВКР.
-		\item Исследование программных продуктов.
-		\item Разработка метода/алгоритма/программы.
-		\item Апробация разработанного метода/алгоритма/программы. 
+	\begin{enumerate}[label=\arabic*)]
+		\item Введение. Обоснование актуальности проблемы 
+		\item Постановка задачи. Формулировка функции цели и ограничений. 
+		\item Обзор методов моделирования низкоскоростных систем передачи данных.\\
+		Уравнения и численные методы.
+		\item Разработка модели. Настройка параметров модели по измерениям и\\
+		верификация.
+		\item Проведение численных экспериментов и анализ результатов. 
+		\item Выводы
+		\item Заключение
 	\end{enumerate}
-	\item Перечень графического материала (с указанием обязательных чертежей): 
-	\begin{enumerate}[label=\theenumi\arabic*.]
-		\item Схема работы метода/алгоритма.
-		\item Архитектура разработанной программы/библиотеки.
-	\end{enumerate}	
-		\item Консультанты по работе\footnote{Подпись консультанта по нормоконтролю пока не требуется. Назначается всем по умолчанию.}:
-		\begin{enumerate}[label=\theenumi\arabic*.] 
-		\item  \uline{\emakefirstuc{\ConsultantExtraDegree}, \ConsultantExtra.} % закомментировать при необходимости, идёт первый по порядку.
-		\item \uline{\emakefirstuc{\ConsultantNormDegree}, \ConsultantNorm{} (нормоконтроль).} %	Обязателен для всех студентов
-	\end{enumerate}
-		\item Дата выдачи задания\footnote{Как правило не позднее 3 месяцев до ГИА (утверждение тем ВКР по университету) или строго не позже 30 дней до ГИА.}: \uline{\thesisStartDate.}
+		\item Дата выдачи задания: \uline{\thesisStartDate.}
 \end{enumerate}
 
 \intervalS%можно удалить пробел
 
-Руководитель ВКР \uline{\hspace*{0.1\textheight} \Supervisor}
-
-
-\intervalS%можно удалить пробел
-
-Консультант\footnote{В случае, если есть консультант, отличный от консультанта по нормоконтролю.}  \uline{\hspace*{0.1\textheight}\ConsultantExtra}
-
+Руководитель ВКР \uline{\hrulefill}\Supervisor
 
 \intervalS%можно удалить пробел
 
 %Консультант по нормоконтролю \uline{\hspace*{0.1\textheight} \ConsultantNorm}%ПОКА НЕ ТРЕБУЕТСЯ, Т.К. ОН У ВСЕХ ПО УМОЛЧАНИЮ
 
-Задание принял к исполнению \uline{\thesisStartDate}
+Задание принял к исполнению 
 
 \intervalS%можно удалить пробел
 
-Студент \uline{\hspace*{0.1\textheight}  \Author}
+Студент \uline{\hrulefill}\Author
 
 
 
